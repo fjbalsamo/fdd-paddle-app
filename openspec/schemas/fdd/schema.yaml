@@ -1,0 +1,178 @@
+name: fdd
+version: 1
+description: >-
+  Functionality Driven Development — one vertical user story per change,
+  2-3 scenarios, test list as contract, AI drives / human navigates.
+  Flow: story → specs → plan → tests → apply (pair) → archive.
+
+artifacts:
+  - id: story
+    generates: story.md
+    description: One vertical user story, its capabilities and what stays out
+    template: story.md
+    instruction: |
+      Write ONE user story that delivers value on its own and cuts through
+      every layer it needs (data, backend, UI). You order and slice; the user
+      brings the requirements.
+
+      Rules:
+      - Don't invent requirements. If something is missing or ambiguous, ask
+        ONE question at a time, with your suggested answer, and wait.
+      - Often the story is all there is: no spec, no defined requirements.
+        That's expected. If the user can't answer a question either, propose
+        the simplest reasonable option and record it under "Assumptions" —
+        never present it as a confirmed requirement. Assumptions are tested
+        with the user in the demo before the slice closes.
+      - The actor is a real user or an external system, never "the developer"
+        or "the system". "Set up the database" is not a story: infrastructure
+        is built inside the first story that needs it.
+      - If this is the first change of the project, the story must be the
+        smallest thing usable end to end (walking skeleton).
+      - Check the project context for expensive-to-reverse decisions
+        (tenancy, permissions/roles, auth, public contracts, data model,
+        compliance, data residency, offline/sync, i18n/currency). If this story
+        touches one that has no ADR yet, STOP and tell the user before going on.
+
+      Capabilities: before filling this in, run `openspec list --specs` and
+      read any related spec with `openspec show "<spec-id>" --type spec`.
+      Reuse existing capability paths; name new ones for a durable behavior
+      (`expense-split`), not for this work (`add-split-button`). kebab-case.
+      Every capability listed here needs a delta spec file.
+
+      Keep the whole file under ~25 lines. No implementation details here.
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: Delta specs — the story's acceptance criteria as scenarios
+    template: spec.md
+    instruction: |
+      Write the acceptance criteria as delta specs. They describe WHAT the user
+      sees or gets, never HOW it is implemented.
+
+      Size limit (the core rule of FDD):
+      - 2 to 3 scenarios in TOTAL across all spec files of this change.
+      - If the story needs more, DO NOT grow the spec. Stop and propose
+        splitting the story; give the new stories as one-liners
+        ("As a…, I want…, so that…") for the user's backlog, then continue
+        with the first one only.
+
+      Format (required by `openspec validate` and archive):
+      - One file per capability listed in story.md, at
+        `specs/<capability-path>/spec.md`, using the exact path.
+      - Sections: `## ADDED Requirements`, `## MODIFIED Requirements`,
+        `## REMOVED Requirements` (with **Reason** and **Migration**).
+      - `### Requirement: <name>` + one-behavior description using SHALL/MUST.
+      - `#### Scenario: <name>` (exactly 4 hashes) with `- **GIVEN**` (optional),
+        `- **WHEN**`, `- **THEN**` bullets. Every requirement has a scenario.
+      - New capabilities only: start with `## Purpose` (1-2 sentences, 50+ chars).
+      - MODIFIED: copy the ENTIRE existing requirement block from
+        `openspec/specs/<capability-path>/spec.md` and edit it. Partial blocks
+        lose content at archive. If you're only adding behavior, use ADDED.
+
+      Each scenario must be testable or explicitly marked for manual
+      verification later. Expected values come from the user, not from you.
+      A scenario that rests on an assumption from story.md is still written
+      as plain behavior; the link lives in story.md ("affects: <Scenario>").
+    requires:
+      - story
+
+  - id: plan
+    generates: plan.md
+    description: Mini plan — how the slice crosses the layers, 5 bullets max
+    template: plan.md
+    instruction: |
+      Propose the minimum that satisfies the scenarios. Read the current code
+      and the project context first.
+
+      Rules:
+      - 5 bullets max. No code, no file or function names.
+      - Describe how the slice crosses the layers (data → API → UI, or
+        whatever applies), nothing more.
+      - The simplest thing that works. No abstractions, layers, config or
+        patterns "for the future".
+      - Suggestions (patterns, refactors, extractions) go in their own section
+        and only with a concrete signal already in the code (e.g. something
+        that already repeats). They are the user's call.
+      - If the plan requires an expensive-to-reverse decision, write it under
+        "Decisions needing an ADR" and stop for the user.
+    requires:
+      - specs
+
+  - id: tests
+    generates: tests.md
+    description: The test list — the contract that apply works through
+    template: tests.md
+    instruction: |
+      Derive the test list from the scenarios. Names only: DO NOT write test
+      code here. This list is the contract; the user approves it, not you.
+
+      Rules:
+      - Every scenario maps to at least one test or one manual check.
+      - Format: `- [ ] T<n> <behavior in plain words> — level: <e2e|endpoint|
+        service|component|unit> — covers: <Scenario name>`.
+      - Prefer the highest practical level (closest to the user).
+      - Criteria that can't be tested well (visual, UX feel) become
+        `- [ ] M<n> <what to check by hand> — covers: <Scenario name>`.
+      - Copy the "Close" section from the template unchanged. Archive counts
+        its checkboxes, so the change can't be archived cleanly until the
+        slice is actually closed.
+      - Once the user approves this file, only the user changes it.
+    requires:
+      - specs
+      - plan
+
+apply:
+  requires: [tests]
+  tracks: tests.md
+  instruction: |
+    Pair programming. You are the DRIVER (you write code). The user is the
+    NAVIGATOR (reviews, decides, says yes or no). One change per session.
+
+    Before starting: check plan.md against the current code. If something no
+    longer fits, say so and wait.
+
+    Cycle — one step = one T item from tests.md:
+      1. Write the test.
+      2. Run it and SHOW that it fails (red).
+      3. Write the MINIMUM code that makes it pass. Nothing the test doesn't need.
+      4. Run the tests and SHOW they pass (green). Tick the box in tests.md.
+    By default do ONE step and stop. If the user says "do N", run N full
+    cycles one after another (never "N tests, then the code"); in the report
+    show the tests first, then the code.
+
+    After each stop, report in three lines:
+      ✅ Passes "<test>". <what you did, one line> (<file:line>)
+      Decided: <judgment call, if any>
+      Change anything or continue with "<next test>"?
+
+    STOP immediately (even mid-batch) if:
+      - You need a design decision that isn't in plan.md.
+      - You want to add something nobody asked for, however reasonable.
+      - Passing a test would require changing, skipping or deleting a test.
+      - Two attempts without reaching green.
+      - The step exceeds ~50 lines or touches more than 3 files: propose a split.
+      - Exception: in a walking skeleton, framework scaffolding generated by
+        an official CLI doesn't count toward the limit; say so explicitly.
+
+    Test rules:
+      - The expected value comes from the scenario, NEVER computed with the
+        same logic as the code under test.
+      - Test behavior through the public interface, not internals.
+
+    When every T item is green, work the "Close" section of tests.md with the
+    user, one box at a time:
+      - Walk through each M item with the user.
+      - Test each assumption in story.md with the user on the running app.
+        Mark it confirmed, or if it was wrong, write the correction as a new
+        one-line story for the backlog. Don't fix it inside this slice.
+      - Refactor pass: suggest refactors (duplication, naming, structure);
+        the user decides. Refactor only with tests green and never mixed
+        with new behavior. "Not needed" is valid, but write the reason.
+      - Check the Definition of Done level declared in story.md against the
+        project context.
+      - If a decision now applies to the whole project, propose an ADR or a
+        line for the project context.
+      - Propose commit messages, functionality and refactor separately.
+
+    NEVER commit. The user commits.
