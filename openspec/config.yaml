@@ -1,32 +1,27 @@
-schema: spec-driven
+schema: fdd
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Product: Portal de reservas de canchas de pádel para un club de barrio — socios ven disponibilidad y reservan turnos desde el celular
+  Stack: TypeScript, React, Vite
+  Testing: Vitest + Testing Library (component level by default)
+  Run: npm run dev | Test: npx vitest run
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+  Expensive-to-reverse decisions:
+  - Persistence: none yet (in-memory) — revisit when a story needs data to survive a reload
+  - Auth, tenancy, public contracts: n/a for now
 
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+  Definition of Done:
+  - demo: tests green + manual checks done with the user.
+  - production: n/a for this trial.
+
+rules:
+  story:
+    - Write user-facing text in Spanish.
+
+operations:
+  apply:
+    guidance:
+      - Run only the affected tests while red/green; the full suite before the Close section.
+  archive:
+    guidance:
+      - Don't archive with open boxes in the Close section unless the user explicitly says so.
