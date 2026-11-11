@@ -14,14 +14,25 @@ context: |
   - demo: tests green + manual checks done with the user.
   - production: n/a for this trial.
 
+  Backlog:
+  - Source of truth: openspec/backlog.md
+  - Priority is determined by the order of pending items.
+  - Only the user decides which functionality to implement.
+  - Do not implement unrelated backlog items.
+
 rules:
   story:
     - Write user-facing text in Spanish.
+    - When a story corresponds to a backlog item, reference its ID.
+    - Do not expand the scope beyond the selected functionality.
 
 operations:
   apply:
     guidance:
       - Run only the affected tests while red/green; the full suite before the Close section.
+      - Do not implement other backlog items.
   archive:
     guidance:
       - Don't archive with open boxes in the Close section unless the user explicitly says so.
+      - When archiving a completed backlog item, mark it as Done in openspec/backlog.md.
+      - Do not mark incomplete functionality as Done.
