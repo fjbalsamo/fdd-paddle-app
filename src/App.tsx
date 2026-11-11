@@ -21,7 +21,7 @@ function App({ canchas = DB.canchas }: { canchas?: Cancha[] }) {
             {horarios.map((hora) => (
               <li key={hora}>
                 <span>{hora}</span>{' '}
-                <span>{cancha.ocupados.includes(hora) ? 'Ocupado' : 'Libre'}</span>
+                <span>{cancha.ocupados.includes(hora) ? 'Ocupado' : 'Disponible'}</span>
               </li>
             ))}
           </ul>

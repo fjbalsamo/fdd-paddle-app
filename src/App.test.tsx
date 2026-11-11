@@ -27,7 +27,7 @@ test('cada cancha lista exactamente 10 turnos, de 8:00 a 21:30 cada 90 minutos y
   }
 })
 
-test('con datos que marcan turnos ocupados, esos turnos muestran "Ocupado" y el resto "Libre"', () => {
+test('con datos que marcan turnos ocupados, esos turnos muestran "Ocupado" y el resto "Disponible"', () => {
   render(<App canchas={[{ id: 1, nombre: 'Cancha de prueba', ocupados: ['9:30', '20:00'] }]} />)
 
   const cancha = screen.getByRole('region', { name: 'Cancha de prueba' })
@@ -35,19 +35,19 @@ test('con datos que marcan turnos ocupados, esos turnos muestran "Ocupado" y el 
     .getAllByRole('listitem')
     .map((turno) => [
       within(turno).getByText(/^\d{1,2}:\d{2}$/).textContent,
-      within(turno).getByText(/^(Libre|Ocupado)$/).textContent,
+      within(turno).getByText(/^(Disponible|Ocupado)$/).textContent,
     ])
 
   expect(turnos).toEqual([
-    ['8:00', 'Libre'],
+    ['8:00', 'Disponible'],
     ['9:30', 'Ocupado'],
-    ['11:00', 'Libre'],
-    ['12:30', 'Libre'],
-    ['14:00', 'Libre'],
-    ['15:30', 'Libre'],
-    ['17:00', 'Libre'],
-    ['18:30', 'Libre'],
+    ['11:00', 'Disponible'],
+    ['12:30', 'Disponible'],
+    ['14:00', 'Disponible'],
+    ['15:30', 'Disponible'],
+    ['17:00', 'Disponible'],
+    ['18:30', 'Disponible'],
     ['20:00', 'Ocupado'],
-    ['21:30', 'Libre'],
+    ['21:30', 'Disponible'],
   ])
 })
