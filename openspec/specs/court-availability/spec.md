@@ -1,7 +1,7 @@
 # court-availability Specification
 
 ## Purpose
-Permitir que un socio vea, para el día de hoy, los turnos de cada cancha del club y si están libres u ocupados.
+Permitir que un socio vea, para el día de hoy, los turnos de cada cancha del club y si están disponibles u ocupados.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ El portal SHALL mostrar las 3 canchas del club (Cancha 1, Cancha 2 y Cancha 3), 
 ### Requirement: Estado de cada turno
 El portal SHALL indicar en cada turno si está "Disponible" u "Ocupado", según los datos de ocupación del día.
 
-#### Scenario: Distinguir turnos libres y ocupados
+#### Scenario: Distinguir turnos disponibles y ocupados
 - **GIVEN** los datos del día marcan algunos turnos como ocupados
 - **WHEN** el socio abre el portal
 - **THEN** esos turnos se ven como "Ocupado"

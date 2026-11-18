@@ -11,7 +11,25 @@ for (let inicio = APERTURA; inicio + DURACION_TURNO <= CIERRE; inicio += DURACIO
 
 type Cancha = (typeof DB.canchas)[number]
 
-function App({ canchas = DB.canchas }: { canchas?: Cancha[] }) {
+const aMinutos = (hhmm: string) => {
+  const [h, m] = hhmm.split(':').map(Number)
+  return h * 60 + m
+}
+
+const horaDelClub = () =>
+  new Intl.DateTimeFormat('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: 'numeric',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date())
+
+function estadoDelTurno(cancha: Cancha, hora: string, ahora: string) {
+  if (aMinutos(hora) <= aMinutos(ahora)) return 'No disponible'
+  return cancha.ocupados.includes(hora) ? 'Ocupado' : 'Disponible'
+}
+
+function App({ canchas = DB.canchas, hora: ahora = horaDelClub() }: { canchas?: Cancha[]; hora?: string }) {
   return (
     <main>
       {canchas.map((cancha) => (
@@ -21,7 +39,7 @@ function App({ canchas = DB.canchas }: { canchas?: Cancha[] }) {
             {horarios.map((hora) => (
               <li key={hora}>
                 <span>{hora}</span>{' '}
-                <span>{cancha.ocupados.includes(hora) ? 'Ocupado' : 'Disponible'}</span>
+                <span>{estadoDelTurno(cancha, hora, ahora)}</span>
               </li>
             ))}
           </ul>
