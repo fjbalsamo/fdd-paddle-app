@@ -1,3 +1,7 @@
+import BlockIcon from '@mui/icons-material/Block'
+import CancelIcon from '@mui/icons-material/Cancel'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import Chip from '@mui/material/Chip'
 import { DB } from './DB.mock'
 
 const APERTURA = 8 * 60
@@ -29,6 +33,21 @@ function estadoDelTurno(cancha: Cancha, hora: string, ahora: string) {
   return cancha.ocupados.includes(hora) ? 'Ocupado' : 'Disponible'
 }
 
+const aspectoDelEstado = {
+  Disponible: { color: 'success', variant: 'filled', icon: <CheckCircleIcon /> },
+  Ocupado: { color: 'error', variant: 'filled', icon: <CancelIcon /> },
+  'No disponible': {
+    color: 'default',
+    variant: 'outlined',
+    icon: <BlockIcon />,
+    sx: { color: 'inherit', borderColor: 'currentColor', '& .MuiChip-icon': { color: 'inherit' } },
+  },
+} as const
+
+function EstadoDelTurno({ estado }: { estado: keyof typeof aspectoDelEstado }) {
+  return <Chip label={estado} size="small" {...aspectoDelEstado[estado]} />
+}
+
 function App({ canchas = DB.canchas, hora: ahora = horaDelClub() }: { canchas?: Cancha[]; hora?: string }) {
   return (
     <main>
@@ -39,7 +58,7 @@ function App({ canchas = DB.canchas, hora: ahora = horaDelClub() }: { canchas?: 
             {horarios.map((hora) => (
               <li key={hora}>
                 <span>{hora}</span>{' '}
-                <span>{estadoDelTurno(cancha, hora, ahora)}</span>
+                <EstadoDelTurno estado={estadoDelTurno(cancha, hora, ahora)} />
               </li>
             ))}
           </ul>

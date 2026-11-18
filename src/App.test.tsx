@@ -128,3 +128,19 @@ test('sin hora de entrada usa la hora de Buenos Aires: con el reloj en 16:00 UTC
     ['21:30', 'Disponible'],
   ])
 })
+
+test('con turnos pasados, ocupados y libres en la misma cancha, cada turno muestra el texto de su estado', () => {
+  render(<App hora="13:00" canchas={[{ id: 1, nombre: 'Cancha de prueba', ocupados: ['14:00', '17:00'] }]} />)
+
+  const cancha = screen.getByRole('region', { name: 'Cancha de prueba' })
+  const estadoDe = (hora: string) => {
+    const turno = within(cancha)
+      .getAllByRole('listitem')
+      .find((item) => within(item).queryByText(hora))!
+    return within(turno).getByText(/^(Disponible|Ocupado|No disponible)$/).textContent
+  }
+
+  expect(estadoDe('11:00')).toBe('No disponible')
+  expect(estadoDe('14:00')).toBe('Ocupado')
+  expect(estadoDe('15:30')).toBe('Disponible')
+})
