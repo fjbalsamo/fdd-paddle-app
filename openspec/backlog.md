@@ -9,8 +9,8 @@
 
 ## In Progress
 
-- [ ] FDD-005 | Como socio, quiero que los turnos que ya pasaron no figuren como disponibles, para no intentar reservar algo imposible.
 
 ## Done
 
 - [x] FDD-001 | Ver disponibilidad de canchas
+- [x] FDD-005 | Como socio, quiero que los turnos que ya pasaron no figuren como disponibles, para no intentar reservar algo imposible.
