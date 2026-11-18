@@ -54,17 +54,16 @@ rules:
     - C2 must name the backlog IDs created for rejected assumptions, or say "none rejected".
 
 operations:
-  operations:
-    apply:
-      guidance:
-        - Run only the affected tests while red/green; the full suite before the Close section.
-        - Do not implement other backlog items.
-        - Every judgment call reported as "Decided:" is also appended to the "## Decisions" section of tests.md.
-        - Modifying a test listed under "## Modified tests" is allowed; any other test change is still a STOP.
-        - In the first change, setting up the test tooling (test runner, DOM environment, testing library) counts as scaffolding and is exempt from the step-size limit; say so explicitly.
-        - Refactor only code touched by this change; anything else becomes a backlog proposal. Follow the existing conventions and structure; don't restyle.
-        - Use the fdd-reader subagent for any codebase or spec exploration; keep only its summary in context.
-        - On a STOP for a design decision, or after two failed attempts, consult the fdd-architect subagent, then bring its options to the user.
+  apply:
+    guidance:
+      - Run only the affected tests while red/green; the full suite before the Close section.
+      - Do not implement other backlog items.
+      - Every judgment call reported as "Decided:" is also appended to the "## Decisions" section of tests.md.
+      - Modifying a test listed under "## Modified tests" is allowed; any other test change is still a STOP.
+      - In the first change, setting up the test tooling (test runner, DOM environment, testing library) counts as scaffolding and is exempt from the step-size limit; say so explicitly.
+      - Refactor only code touched by this change; anything else becomes a backlog proposal. Follow the existing conventions and structure; don't restyle.
+      - Use the fdd-reader subagent for any codebase or spec exploration; keep only its summary in context.
+      - On a STOP for a design decision, or after two failed attempts, consult the fdd-architect subagent, then bring its options to the user.
   archive:
     guidance:
       - Don't archive with open boxes in the Close section unless the user explicitly says so.
