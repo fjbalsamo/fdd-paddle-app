@@ -6,33 +6,67 @@ context: |
   Testing: Vitest + Testing Library (component level by default)
   Run: npm run dev | Test: npx vitest run
 
-  Expensive-to-reverse decisions:
+  Precedence: inside an FDD change, the fdd schema instructions and this
+  config win over CLAUDE.md (e.g. ask one question at a time even if
+  CLAUDE.md says to avoid pre-flight discussion).
+
+  Expensive-to-reverse decisions (each one taken gets an ADR in
+  docs/adrs/NNN-title.md with: Context, Decision, Consequences):
   - Persistence: none yet (in-memory) — revisit when a story needs data to survive a reload
+  - Time zone: not decided — treat as expensive the first time a story depends on the current time
   - Auth, tenancy, public contracts: n/a for now
 
   Definition of Done:
   - demo: tests green + manual checks done with the user.
   - production: n/a for this trial.
 
-  Backlog:
-  - Source of truth: openspec/backlog.md
-  - Priority is determined by the order of pending items.
-  - Only the user decides which functionality to implement.
-  - Do not implement unrelated backlog items.
+  Backlog (openspec/backlog.md):
+  - Items may be epics. Each FDD change is ONE story; reference it with a
+    child ID of its item (FDD-002.1, FDD-002.2…).
+  - The order of "Pending" is a suggestion; only the user picks what to build.
+  - An item is "In Progress" while it has an open change; it moves to "Done"
+    only when the whole item is finished, not one of its stories.
+  - New stories (from a split or a rejected assumption) are proposed as
+    one-liners and added to "Pending" with a new ID once the user approves.
+
+  Trivial changes (outside FDD): a change is trivial only if it doesn't change
+  the meaning of any scenario (e.g. renaming visible text). Apply it directly,
+  but update every occurrence in openspec/specs/ and the tests. Never edit
+  archived changes.
 
 rules:
   story:
-    - Write user-facing text in Spanish.
-    - When a story corresponds to a backlog item, reference its ID.
+    - When a story corresponds to a backlog item, reference its ID (child ID if the item is an epic).
     - Do not expand the scope beyond the selected functionality.
+    - No implementation details anywhere (no data sources, libraries, files, mocks). Keep it under 25 lines.
+  specs:
+    - The 2-3 scenario limit counts only new or changed scenarios; unchanged scenarios copied into a MODIFIED block don't count.
+    - A value you proposed and the user didn't confirm must also appear as an assumption in story.md.
+  plan:
+    - No file, function, component or prop names. If you notice you need one, the bullet is too detailed.
+    - Each bullet is one line.
+    - Any test-only hook (props or parameters added for testing) is a design decision and must appear in the plan.
+  tests:
+    - Manual checks (M) must be observable by the end user, never by the developer.
+    - Once approved, test IDs are never renumbered or deleted; a dropped item stays struck through with the reason.
+    - If the change needs to modify tests from a previous change, list them under a "## Modified tests" section with the reason; the user approves them with the list.
+    - Add an empty "## Decisions" section before "## Close".
+    - C2 must name the backlog IDs created for rejected assumptions, or say "none rejected".
 
 operations:
-  apply:
-    guidance:
-      - Run only the affected tests while red/green; the full suite before the Close section.
-      - Do not implement other backlog items.
+  operations:
+    apply:
+      guidance:
+        - Run only the affected tests while red/green; the full suite before the Close section.
+        - Do not implement other backlog items.
+        - Every judgment call reported as "Decided:" is also appended to the "## Decisions" section of tests.md.
+        - Modifying a test listed under "## Modified tests" is allowed; any other test change is still a STOP.
+        - In the first change, setting up the test tooling (test runner, DOM environment, testing library) counts as scaffolding and is exempt from the step-size limit; say so explicitly.
+        - Refactor only code touched by this change; anything else becomes a backlog proposal. Follow the existing conventions and structure; don't restyle.
+        - Use the fdd-reader subagent for any codebase or spec exploration; keep only its summary in context.
+        - On a STOP for a design decision, or after two failed attempts, consult the fdd-architect subagent, then bring its options to the user.
   archive:
     guidance:
       - Don't archive with open boxes in the Close section unless the user explicitly says so.
-      - When archiving a completed backlog item, mark it as Done in openspec/backlog.md.
-      - Do not mark incomplete functionality as Done.
+      - Before archiving, check that every backlog ID named in C2 exists in openspec/backlog.md.
+      - Update openspec/backlog.md following the backlog rules in the context; never mark an epic Done because one story finished.
